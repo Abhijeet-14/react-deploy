@@ -18,7 +18,7 @@ function App() {
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
 
-        <span> Random Message:</span>
+        <span> Random Message (Staging):</span>
         <span>{msg}</span>
 
         <button
