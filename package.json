@@ -13,10 +13,9 @@
     "web-vitals": "^2.1.2"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "build": "rm -rf dist && parcel build sec/index.html",
+    "test": "jest",
+    "watch": "parcel src/index.html"
   },
   "eslintConfig": {
     "extends": [
