@@ -1,70 +1,107 @@
-# Getting Started with Create React App
+# CI-CD deployment of React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+1. goto codepipeline in AWS
+2. click create pipeline
+3. name your pipeline
+4. click next
+5. choose source provider -> Github
+6. connect to github (authentication)
+7. choose REPO
+8. choose branch
+9. click NEXT
+10. Buil provider > choose 'AWS codebuild'
+11. click 'create project'
+12. give project name
+13. in Environment -> Operating System -> choose Ubuntu
+14. choose Runtimes -> standard
+15. choose images -> aws/codebuild/standard:4
+16. go bottom -> continue to CodePipeline
 
-## Available Scripts
+> Succesfully create CodeBuild
 
-In the project directory, you can run:
+17. click NEXT
+18. Deploy provider -> choose 'Amazon S3'.... reason, bcz build will be done by codebuild... and final build files like bundle.js etc will be pushed to S3
+19. goto S3, and create a bucket
+20. choose unique name and create bucket.
+21. return to codepipeline tab
+22. choose Bucket -> 'react-deploy-1' (say)
+23. next field, S3 object Key... mailny it zip the react application and put into S3.. we don't want that...
+24. check the 'Extract file before deploy' -> this is extract in the root folder
+25. click NEXT
+26. go bottom -> click 'create pipeline'
 
-### `npm start`
+> Successfully created CodePipeline
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+27. Now do configurstion setup in react-folder
+28. goto project -> create buildspec.yml file
+29. write:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+    ```
+    version: 0.2
 
-### `npm test`
+    phases:
+        install:
+            commands:
+                # install Node 14
+                # install Yarn
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+        pre_build:
+            commands:
+                # install dependencies
 
-### `npm run build`
+        build:
+            commands:
+                # tests
+                # build
+    ```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+30. try to find ubuntu method of downloading Node 14
+    -> nodejs.org -> other downloads -> Installing Node.js via package manager -> Node.js binary distributions -> goto Node.js v14.x
+    -> copy code .. download using ubuntu
+    -> similar for yarn
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+    ```
+    version: 0.2
+    phases:
+        install:
+            commands:
+                # install Node 14
+                - echo install Node 14...
+                - curl -fsSL https://deb.nodesource.com/setup_14.x |  bash -
+                - apt install -y nodejs
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+                # install Yarn
+                - echo install Yarn
+                - curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+                - echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+                - apt install --no-install-recommends yarn
 
-### `npm run eject`
+        pre_build:
+            commands:
+                # install dependencies
+                - echo installing dependencies...
+                - yarn
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+        build:
+            commands:
+                # tests
+                - echo testing
+                - yarn test
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+                # build
+                - echo building
+                - yarn build
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+    artifacts:
+        files:
+            - "**/*"
+        discard-paths: no
+        base-directory: dist
+    ```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+31. do changes in package.json -> install jest, parcel-bundler
+    -> scipts: {
+        "build" : "rm -rf dist && parcel build sec/index.html",
+        "test": "jest",
+        "watch": "parcel src/index.html" 
+    }
