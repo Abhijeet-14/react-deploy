@@ -11,6 +11,12 @@ function App() {
     const data = await response.json();
     setMsg(data?.activity);
     console.log(data);
+
+    const res = await fetch(
+      "https://5rw8unazul.execute-api.ap-south-1.amazonaws.com/dev/api/"
+    );
+    const _data = await res.json();
+    console.log("My Backend api", _data);
   };
 
   return (
